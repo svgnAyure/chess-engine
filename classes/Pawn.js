@@ -6,17 +6,19 @@ class Pawn extends Piece {
     this.letter = colour === 'w' ? 'P' : 'p'
   }
 
-  *getMoves(enPassant) {
+  *getMoves({ enPassant }) {
     const { x, y } = this.square
-    const d = this.colour === 'w' ? 1 : -1
+    const isWhite = this.colour === 'w'
+    const d = isWhite ? 1 : -1
 
     let square = this.square.board.getSquare({ x, y: y + d })
     if (square && !square.piece) {
-      yield { from: this.square, to: square, type: 'move' }
-      if (y - d === 0 || y - d === 7) {
+      const special = (isWhite && y === 6) || (!isWhite && y === 1) ? 'promotion' : false
+      yield { from: this.square, to: square, capture: false, special }
+      if ((isWhite && y === 1) || (!isWhite && y === 6)) {
         square = this.square.board.getSquare({ x, y: y + 2 * d })
         if (square && !square.piece) {
-          yield { from: this.square, to: square, type: 'move' }
+          yield { from: this.square, to: square, capture: false, special: 'doublePawnMove' }
         }
       }
     }
@@ -24,20 +26,22 @@ class Pawn extends Piece {
     square = this.square.board.getSquare({ x: x - 1, y: y + d })
     if (square) {
       if (square.name === enPassant) {
-        yield { from: this.square, to: square, type: 'enPassant' }
+        yield { from: this.square, to: square, capture: true, special: 'enPassant' }
       }
       if (square.piece && square.piece.colour !== this.colour) {
-        yield { from: this.square, to: square, type: 'capture' }
+        const special = (isWhite && y === 6) || (!isWhite && y === 1) ? 'promotion' : false
+        yield { from: this.square, to: square, capture: true, special }
       }
     }
 
     square = this.square.board.getSquare({ x: x + 1, y: y + d })
     if (square) {
       if (square.name === enPassant) {
-        yield { from: this.square, to: square, type: 'enPassant' }
+        yield { from: this.square, to: square, capture: true, special: 'enPassant' }
       }
       if (square.piece && square.piece.colour !== this.colour) {
-        yield { from: this.square, to: square, type: 'capture' }
+        const special = (isWhite && y === 6) || (!isWhite && y === 1) ? 'promotion' : false
+        yield { from: this.square, to: square, capture: true, special }
       }
     }
   }

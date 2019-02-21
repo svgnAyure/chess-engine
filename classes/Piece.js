@@ -17,7 +17,8 @@ class Piece {
             yield {
               from: this.square,
               to: square,
-              type: 'capture'
+              capture: true,
+              special: false
             }
           }
           break
@@ -25,7 +26,8 @@ class Piece {
           yield {
             from: this.square,
             to: square,
-            type: 'move'
+            capture: false,
+            special: false
           }
         }
         if (!repeating) {

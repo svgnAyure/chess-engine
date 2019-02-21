@@ -1,4 +1,3 @@
-const Rook = require('./classes/Rook')
+const Game = require('./classes/Game')
 
-const r = new Rook('b')
-r.test()
+module.exports = Game

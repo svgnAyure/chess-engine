@@ -2,8 +2,10 @@ const Square = require('./Square')
 const generatePiece = require('../utils/generatePiece')
 
 class Board {
-  constructor(fen) {
-    this.board = this.createBoard(fen)
+  constructor(boardFen, options) {
+    this.board = this.createBoard(boardFen)
+    this.keySquares = this.getKeySquares()
+    this.updateLegalMoves(options)
   }
 
   *[Symbol.iterator]() {
@@ -34,6 +36,30 @@ class Board {
     return this.board[y][x]
   }
 
+  setSquare({ x, y }, piece) {
+    this.board[y][x].piece = piece
+  }
+
+  getKeySquares() {
+    return {
+      king: { w: this.getSquare({ x: 4, y: 0 }), b: this.getSquare({ x: 4, y: 7 }) },
+      castling: {
+        K: [this.getSquare({ x: 5, y: 0 }), this.getSquare({ x: 6, y: 0 })],
+        k: [this.getSquare({ x: 5, y: 7 }), this.getSquare({ x: 6, y: 7 })],
+        Q: [
+          this.getSquare({ x: 3, y: 0 }),
+          this.getSquare({ x: 2, y: 0 }),
+          this.getSquare({ x: 1, y: 0 })
+        ],
+        q: [
+          this.getSquare({ x: 3, y: 7 }),
+          this.getSquare({ x: 2, y: 7 }),
+          this.getSquare({ x: 1, y: 7 })
+        ]
+      }
+    }
+  }
+
   getFen() {
     const reversedBoard = [...this.board].reverse()
     const rows = reversedBoard.map(row =>
@@ -47,25 +73,116 @@ class Board {
     return rows.join('/')
   }
 
-  getLegalMoves(colour) {
+  updateLegalMoves(options) {
+    this.legalMoves = [...this.generateLegalMoves(options)]
+  }
+
+  *generateLegalMoves({ toMove, enPassant, castling }) {
     for (const square of this) {
       const { piece } = square
-      if (piece && piece.colour === colour) {
-        for (const move of piece.getMoves()) {
-          console.log({
-            from: move.from.name,
-            to: move.to.name,
-            type: move.type
-          })
+      if (piece && piece.colour === toMove) {
+        for (const move of piece.getMoves({ enPassant, castling })) {
+          if (this.simulateMove(move, toMove)) {
+            yield move
+          }
         }
       }
     }
   }
-}
 
-const a = new Board('3k4/8/8/8/8/8/3P2p1/3K4')
-a.getLegalMoves('b')
-console.log(a.getFen())
-console.log(a.getSquare({ x: 3, y: 5 }).isControlled('w'))
+  isInCheck(colour) {
+    const square = this.keySquares.king[colour]
+    const otherColour = colour === 'w' ? 'b' : 'w'
+    return square.isControlled(otherColour)
+  }
+
+  simulateMove({ from, to }, colour) {
+    const fromPiece = this.getSquare(from).piece
+    const toPiece = this.getSquare(to).piece
+    const kingSquare = this.keySquares.king[colour]
+
+    this.keySquares.king[colour] = from.piece.letter.toLowerCase() === 'k' ? to : kingSquare
+    this.setSquare(from, null)
+    this.setSquare(to, fromPiece)
+
+    const isInCheck = this.isInCheck(colour)
+
+    this.keySquares.king[colour] = kingSquare
+    this.setSquare(from, fromPiece)
+    this.setSquare(to, toPiece)
+
+    return !isInCheck
+  }
+
+  makeMove({ from, to, promoteTo = 'Q' }) {
+    const move = this.legalMoves.find(m => m.from.name === from && m.to.name === to)
+    if (!move || !['Q', 'R', 'B', 'N'].includes(promoteTo.toUpperCase())) {
+      return null
+    }
+
+    const promotion = this.resolvePromotion(move, promoteTo)
+    const notation = `${this.resolveNotation(move)}${promotion ? promotion.notation : ''}`
+
+    const fromPiece = move.from.piece
+    this.setSquare(move.from, null)
+    this.setSquare(move.to, promotion ? promotion.piece : fromPiece)
+    fromPiece.square = move.to
+
+    this.keySquares.king[fromPiece.colour] =
+      fromPiece.letter.toLowerCase() === 'k' ? move.to : this.keySquares.king[fromPiece.colour]
+
+    return { ...move, notation }
+  }
+
+  resolvePromotion(move, promoteTo) {
+    if (move.special !== 'promotion') {
+      return false
+    }
+    const isWhite = move.from.piece.colour === 'w'
+    const letter = isWhite ? promoteTo.toUpperCase() : promoteTo.toLowerCase()
+    return {
+      piece: generatePiece(letter, move.to),
+      notation: `=${promoteTo.toUpperCase()}`
+    }
+  }
+
+  resolveNotation(move) {
+    const pieceNotation = move.from.piece.letter.toUpperCase()
+
+    if (move.special === 'qsCastle') {
+      return 'O-O-O'
+    }
+
+    if (move.special === 'ksCastle') {
+      return 'O-O'
+    }
+
+    if (move.capture && pieceNotation === 'P') {
+      return `${move.from.name[0]}x${move.to.name}`
+    }
+
+    if (pieceNotation === 'P') {
+      return move.to.name
+    }
+
+    const conflicts = this.legalMoves.filter(
+      m => m !== move && m.to === move.to && m.from.piece.letter === move.from.piece.letter
+    )
+
+    if (conflicts.length) {
+      const colSeparable = conflicts.some(c => c.from.name[0] === move.from.name[0])
+      if (colSeparable) {
+        return `${pieceNotation}${move.from.name[0]}${move.capture ? 'x' : ''}${move.to.name}`
+      }
+      const rowSeparable = conflicts.some(c => c.from.name[1] === move.from.name[1])
+      if (rowSeparable) {
+        return `${pieceNotation}${move.from.name[1]}${move.capture ? 'x' : ''}${move.to.name}`
+      }
+      return `${pieceNotation}${move.from.name}${move.capture ? 'x' : ''}${move.to.name}`
+    }
+
+    return `${pieceNotation}${move.capture ? 'x' : ''}${move.to.name}`
+  }
+}
 
 module.exports = Board
