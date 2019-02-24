@@ -27,7 +27,13 @@ class Game {
   }
 
   getLegalMoves() {
-    return this.board.legalMoves
+    return this.board.legalMoves.map(m => ({
+      from: m.from.name,
+      to: m.to.name,
+      capture: m.capture,
+      special: m.special,
+      notation: m.notation
+    }))
   }
 
   makeMove({ from, to, promoteTo }) {
