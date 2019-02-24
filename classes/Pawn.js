@@ -13,7 +13,7 @@ class Pawn extends Piece {
 
     let square = this.square.board.getSquare({ x, y: y + d })
     if (square && !square.piece) {
-      const special = (isWhite && y === 6) || (!isWhite && y === 1) ? 'promotion' : false
+      const special = (isWhite && y === 6) || (!isWhite && y === 1) ? 'promotion' : null
       yield { from: this.square, to: square, capture: false, special }
       if ((isWhite && y === 1) || (!isWhite && y === 6)) {
         square = this.square.board.getSquare({ x, y: y + 2 * d })
@@ -29,7 +29,7 @@ class Pawn extends Piece {
         yield { from: this.square, to: square, capture: true, special: 'enPassant' }
       }
       if (square.piece && square.piece.colour !== this.colour) {
-        const special = (isWhite && y === 6) || (!isWhite && y === 1) ? 'promotion' : false
+        const special = (isWhite && y === 6) || (!isWhite && y === 1) ? 'promotion' : null
         yield { from: this.square, to: square, capture: true, special }
       }
     }

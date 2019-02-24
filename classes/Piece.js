@@ -18,7 +18,7 @@ class Piece {
               from: this.square,
               to: square,
               capture: true,
-              special: false
+              special: null
             }
           }
           break
@@ -27,7 +27,7 @@ class Piece {
             from: this.square,
             to: square,
             capture: false,
-            special: false
+            special: null
           }
         }
         if (!repeating) {
