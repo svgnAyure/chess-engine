@@ -128,8 +128,29 @@ class Board {
     this.setSquare(move.to, promotion ? promotion.piece : fromPiece)
     fromPiece.square = move.to
 
-    this.keySquares.king[fromPiece.colour] =
-      fromPiece.letter.toLowerCase() === 'k' ? move.to : this.keySquares.king[fromPiece.colour]
+    if (fromPiece.letter.toLowerCase() === 'k') {
+      this.keySquares.king[fromPiece.colour] = move.to
+    }
+
+    if (move.special === 'ksCastle') {
+      const originSquare = this.getSquare({ x: move.to.x + 1, y: move.to.y })
+      const targetSquare = this.getSquare({ x: move.to.x - 1, y: move.to.y })
+      const rookPiece = originSquare.piece
+
+      this.setSquare(targetSquare, rookPiece)
+      this.setSquare(originSquare, null)
+      rookPiece.square = targetSquare
+    }
+
+    if (move.special === 'qsCastle') {
+      const originSquare = this.getSquare({ x: move.to.x - 1, y: move.to.y })
+      const targetSquare = this.getSquare({ x: move.to.x + 1, y: move.to.y })
+      const rookPiece = originSquare.piece
+
+      this.setSquare(targetSquare, rookPiece)
+      this.setSquare(originSquare, null)
+      rookPiece.square = targetSquare
+    }
 
     return { ...move, notation }
   }
