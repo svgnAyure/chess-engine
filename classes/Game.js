@@ -27,13 +27,7 @@ class Game {
   }
 
   getLegalMoves() {
-    const moves = {}
-    for (const move of this.board.legalMoves) {
-      const from = move.from.name
-      const m = { ...move, from: move.from.name, to: move.to.name }
-      moves[from] = moves[from] ? [...moves[from], m] : [m]
-    }
-    return moves
+    return this.board.legalMoves
   }
 
   makeMove({ from, to, promoteTo }) {
