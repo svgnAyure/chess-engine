@@ -26,7 +26,7 @@ class Board {
           square.piece = generatePiece(char, square)
           return square
         } else {
-          return [...Array(+char)].map((_, i) => new Square(this, { x: x++, y }))
+          return [...Array(+char)].map(() => new Square(this, { x: x++, y }))
         }
       })
     })
@@ -132,24 +132,20 @@ class Board {
       this.keySquares.king[fromPiece.colour] = move.to
     }
 
-    if (move.special === 'ksCastle') {
-      const originSquare = this.getSquare({ x: move.to.x + 1, y: move.to.y })
-      const targetSquare = this.getSquare({ x: move.to.x - 1, y: move.to.y })
+    if (move.special === 'ksCastle' || move.special === 'qsCastle') {
+      const kingside = move.special === 'ksCastle'
+      const originSquare = this.getSquare({ x: move.to.x + (kingside ? 1 : -2), y: move.to.y })
+      const targetSquare = this.getSquare({ x: move.to.x + (kingside ? -1 : 1), y: move.to.y })
       const rookPiece = originSquare.piece
-
       this.setSquare(targetSquare, rookPiece)
       this.setSquare(originSquare, null)
       rookPiece.square = targetSquare
     }
 
-    if (move.special === 'qsCastle') {
-      const originSquare = this.getSquare({ x: move.to.x - 1, y: move.to.y })
-      const targetSquare = this.getSquare({ x: move.to.x + 1, y: move.to.y })
-      const rookPiece = originSquare.piece
-
-      this.setSquare(targetSquare, rookPiece)
-      this.setSquare(originSquare, null)
-      rookPiece.square = targetSquare
+    if (move.special === 'enPassant') {
+      const x = move.to.x
+      const y = move.from.y
+      this.setSquare({ x, y }, null)
     }
 
     return { ...move, notation }
