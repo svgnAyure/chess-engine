@@ -13,6 +13,7 @@ class Game {
     this.fullMoves = Number(fullMoves)
 
     this.positionCounts = { [board]: 1 }
+    this.moveHistory = []
 
     this.inCheck = false
     this.inCheckmate = false
@@ -70,7 +71,17 @@ class Game {
     this.updateLegalMoves()
     this.updatePositionCounts()
     this.updateGameStatus()
-    return `${move.notation}${this.inCheckmate ? '#' : this.inCheck ? '+' : ''}`
+
+    this.moveHistory = [
+      ...this.moveHistory,
+      {
+        from: move.from.name,
+        to: move.to.name,
+        notation: `${move.notation}${this.inCheckmate ? '#' : this.inCheck ? '+' : ''}`
+      }
+    ]
+
+    return true
   }
 
   resolveCastling(move) {
@@ -121,6 +132,7 @@ class Game {
       this.statusText = `${this.toMove === 'w' ? 'Black' : 'White'} won the game by checkmate.`
       return true
     }
+    return false
   }
 
   resolveDraw() {
