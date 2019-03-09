@@ -187,11 +187,11 @@ class Board {
     )
 
     if (conflicts.length) {
-      const colSeparable = conflicts.some(c => c.from.name[0] === move.from.name[0])
+      const colSeparable = !conflicts.some(c => c.from.name[0] === move.from.name[0])
       if (colSeparable) {
         return `${pieceNotation}${move.from.name[0]}${move.capture ? 'x' : ''}${move.to.name}`
       }
-      const rowSeparable = conflicts.some(c => c.from.name[1] === move.from.name[1])
+      const rowSeparable = !conflicts.some(c => c.from.name[1] === move.from.name[1])
       if (rowSeparable) {
         return `${pieceNotation}${move.from.name[1]}${move.capture ? 'x' : ''}${move.to.name}`
       }
