@@ -9,22 +9,22 @@ class ChessGame {
     return this.game.makeMove({ from, to, promoteTo })
   }
 
-  getFen() {
+  get fen() {
     return this.game.getFen()
   }
 
-  getLegalMoves() {
+  get legalMoves() {
     return this.game.getLegalMoves()
   }
 
-  getGameStatus() {
+  get gameStatus() {
     return {
       isFinished: this.game.isFinished,
       statusText: this.game.statusText
     }
   }
 
-  getKeySquares() {
+  get keySquares() {
     const lastMove = this.game.moveHistory[this.game.moveHistory.length - 1]
     return {
       lastMove: lastMove ? [lastMove.from, lastMove.to] : [],
@@ -32,8 +32,8 @@ class ChessGame {
     }
   }
 
-  getMoveHistory() {
-    return this.game.moveHistory
+  get moveHistory() {
+    return this.game.moveHistory.map(m => m.notation)
   }
 }
 
