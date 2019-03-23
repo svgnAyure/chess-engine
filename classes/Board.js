@@ -108,14 +108,14 @@ class Board {
     this.keySquares.king[colour] = from.piece.letter.toLowerCase() === 'k' ? to : kingSquare
     this.setSquare(from, null)
     this.setSquare(to, fromPiece)
-    this.setSquare(epSquare, isEnPassant ? null : epPiece)
+    isEnPassant && this.setSquare(epSquare, null)
 
     const isInCheck = this.isInCheck(colour)
 
     this.keySquares.king[colour] = kingSquare
     this.setSquare(from, fromPiece)
     this.setSquare(to, toPiece)
-    this.setSquare(epSquare, epPiece)
+    isEnPassant && this.setSquare(epSquare, epPiece)
 
     return !isInCheck
   }
