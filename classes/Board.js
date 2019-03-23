@@ -96,20 +96,26 @@ class Board {
     return square.isControlled(otherColour)
   }
 
-  simulateMove({ from, to }, colour) {
+  simulateMove({ from, to, special }, colour) {
     const fromPiece = this.getSquare(from).piece
     const toPiece = this.getSquare(to).piece
     const kingSquare = this.keySquares.king[colour]
 
+    const isEnPassant = special === 'enPassant'
+    const epSquare = this.getSquare({ x: to.x, y: from.y })
+    const epPiece = epSquare.piece
+
     this.keySquares.king[colour] = from.piece.letter.toLowerCase() === 'k' ? to : kingSquare
     this.setSquare(from, null)
     this.setSquare(to, fromPiece)
+    this.setSquare(epSquare, isEnPassant ? null : epPiece)
 
     const isInCheck = this.isInCheck(colour)
 
     this.keySquares.king[colour] = kingSquare
     this.setSquare(from, fromPiece)
     this.setSquare(to, toPiece)
+    this.setSquare(epSquare, epPiece)
 
     return !isInCheck
   }
