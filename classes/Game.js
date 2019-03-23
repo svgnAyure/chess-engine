@@ -146,6 +146,11 @@ class Game {
       return true
     }
 
+    if (!this.inCheck && !this.board.legalMoves.length) {
+      this.statusText = 'The game ended in a draw due to stalemate.'
+      return true
+    }
+
     return false
   }
 }
