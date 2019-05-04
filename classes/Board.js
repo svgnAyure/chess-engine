@@ -208,7 +208,7 @@ class Board {
   }
 
   resolveMatingMaterial() {
-    const fenArray = this.board.getFen().split('')
+    const fenArray = this.getFen().split('')
     const { whitePieces, blackPieces } = fenArray
       .filter(c => c !== '/' && isNaN(c))
       .sort()
