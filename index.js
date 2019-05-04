@@ -9,6 +9,14 @@ class ChessGame {
     return this.game.makeMove({ from, to, promoteTo })
   }
 
+  playerDraw() {
+    this.game.playerDraw()
+  }
+
+  playerResign(colour) {
+    this.game.playerResign(colour)
+  }
+
   get fen() {
     return this.game.getFen()
   }
