@@ -206,6 +206,25 @@ class Board {
 
     return `${pieceNotation}${move.capture ? 'x' : ''}${move.to.name}`
   }
+
+  resolveMatingMaterial() {
+    const fenArray = this.board.getFen().split('')
+    const { whitePieces, blackPieces } = fenArray
+      .filter(c => c !== '/' && isNaN(c))
+      .sort()
+      .reduce(
+        (acc, cur) => ({
+          whitePieces: cur === cur.toUpperCase() ? acc.whitePieces + cur : acc.whitePieces,
+          blackPieces: cur === cur.toLowerCase() ? acc.blackPieces + cur : acc.blackPieces
+        }),
+        { whitePieces: '', blackPieces: '' }
+      )
+
+    return {
+      whiteCanMate: !['K', 'KN', 'BK'].includes(whitePieces),
+      blackCanMate: !['k', 'kn', 'bk'].includes(blackPieces)
+    }
+  }
 }
 
 module.exports = Board

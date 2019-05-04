@@ -17,6 +17,10 @@ class ChessGame {
     this.game.playerResign(colour)
   }
 
+  playerTimeout(colour) {
+    this.game.playerTimeout(colour)
+  }
+
   get fen() {
     return this.game.getFen()
   }

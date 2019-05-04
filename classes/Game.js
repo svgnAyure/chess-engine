@@ -131,25 +131,6 @@ class Game {
     this.isFinished = this.inCheckmate || this.isDraw
   }
 
-  resolveMatingMaterial() {
-    const fenArray = this.board.getFen().split('')
-    const { whitePieces, blackPieces } = fenArray
-      .filter(c => c !== '/' && isNaN(c))
-      .sort()
-      .reduce(
-        (acc, cur) => ({
-          whitePieces: cur === cur.toUpperCase() ? acc.whitePieces + cur : acc.whitePieces,
-          blackPieces: cur === cur.toLowerCase() ? acc.blackPieces + cur : acc.blackPieces
-        }),
-        { whitePieces: '', blackPieces: '' }
-      )
-
-    return {
-      whiteCanMate: !['K', 'KN', 'BK'].includes(whitePieces),
-      blackCanMate: !['k', 'kn', 'bk'].includes(blackPieces)
-    }
-  }
-
   resolveCheckmate() {
     if (this.inCheck && !this.board.legalMoves.length) {
       this.statusText = `${this.toMove === 'w' ? 'Black' : 'White'} won the game by checkmate.`
@@ -174,7 +155,7 @@ class Game {
       return true
     }
 
-    const { whiteCanMate, blackCanMate } = this.resolveMatingMaterial()
+    const { whiteCanMate, blackCanMate } = this.board.resolveMatingMaterial()
     if (!whiteCanMate && !blackCanMate) {
       this.statusText = 'The game ended in a draw due to insufficient material.'
       return true
@@ -185,13 +166,33 @@ class Game {
 
   playerResign(colour) {
     const [winner, loser] = colour === 'b' ? ['White', 'Black'] : ['Black', 'White']
-    this.statusText = `${winner} won the game because ${loser} resigned.`
+    this.statusText = `${loser} resigned. ${winner} won.`
     this.isFinished = true
   }
 
   playerDraw() {
-    this.statusText = 'The game ended in a draw upon agreement.'
+    this.statusText = 'The game ended in a draw by agreement.'
     this.isDraw = true
+    this.isFinished = true
+  }
+
+  playerTimeout(colour) {
+    const { whiteCanMate, blackCanMate } = this.board.resolveMatingMaterial()
+    if (colour === 'w') {
+      if (blackCanMate) {
+        this.statusText = 'Black won on time.'
+      } else {
+        this.statusText = 'The game was drawn on time.'
+        this.isDraw = true
+      }
+    } else {
+      if (whiteCanMate) {
+        this.statusText = 'White won on time.'
+      } else {
+        this.statusText = 'The game was drawn on time.'
+        this.isDraw = true
+      }
+    }
     this.isFinished = true
   }
 }
