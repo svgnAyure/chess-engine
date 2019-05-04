@@ -133,7 +133,7 @@ class Game {
 
   resolveCheckmate() {
     if (this.inCheck && !this.board.legalMoves.length) {
-      this.statusText = `${this.toMove === 'w' ? 'Black' : 'White'} won the game by checkmate.`
+      this.statusText = `${this.toMove === 'w' ? 'Black' : 'White'} won by checkmate.`
       return true
     }
     return false
@@ -141,23 +141,23 @@ class Game {
 
   resolveDraw() {
     if (this.halfMoves >= 100) {
-      this.statusText = 'The game ended in a draw due to the fifty-move rule.'
+      this.statusText = 'Draw due to the fifty-move rule.'
       return true
     }
 
     if (Object.values(this.positionCounts).some(p => p >= 3)) {
-      this.statusText = 'The game ended in a draw due to threefold repetition.'
+      this.statusText = 'Draw due to threefold repetition.'
       return true
     }
 
     if (!this.inCheck && !this.board.legalMoves.length) {
-      this.statusText = 'The game ended in a draw due to stalemate.'
+      this.statusText = 'Draw due to stalemate.'
       return true
     }
 
     const { whiteCanMate, blackCanMate } = this.board.resolveMatingMaterial()
     if (!whiteCanMate && !blackCanMate) {
-      this.statusText = 'The game ended in a draw due to insufficient material.'
+      this.statusText = 'Draw due to insufficient material.'
       return true
     }
 
@@ -171,7 +171,7 @@ class Game {
   }
 
   playerDraw() {
-    this.statusText = 'The game ended in a draw by agreement.'
+    this.statusText = 'Draw by agreement.'
     this.isDraw = true
     this.isFinished = true
   }
@@ -182,14 +182,14 @@ class Game {
       if (blackCanMate) {
         this.statusText = 'Black won on time.'
       } else {
-        this.statusText = 'The game was drawn on time.'
+        this.statusText = 'Draw due to timeout.'
         this.isDraw = true
       }
     } else {
       if (whiteCanMate) {
         this.statusText = 'White won on time.'
       } else {
-        this.statusText = 'The game was drawn on time.'
+        this.statusText = 'Draw due to timeout.'
         this.isDraw = true
       }
     }
