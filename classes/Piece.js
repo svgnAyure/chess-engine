@@ -1,9 +1,19 @@
+/**
+ * Klasse som representerer en sjakkbrikke.
+ * Inneholder generelle metoder for sjakkbrikker og kan
+ * sees på som en abstrakt superklasse for andre brikker.
+ */
+
 class Piece {
+  // Konstruktørmetode for brikker, kalles gjennom super() i underklasser.
   constructor(square, colour) {
-    this.square = square
-    this.colour = colour
+    this.square = square // Feltet brikken står på
+    this.colour = colour // Fargen på brikken, hvilken spiller brikken tilhører
   }
 
+  // Metode for generering av brikkens lovlige trekk.
+  // Basert på "inkrementer" definert i underklassene, som tilsvarer hvilke
+  // retninger en brikke kan flyttes, og om den kan flyttes flere felter.
   *generateMoves(increments, repeating) {
     for (const inc of increments) {
       for (

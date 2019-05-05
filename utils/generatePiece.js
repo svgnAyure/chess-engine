@@ -1,3 +1,8 @@
+/**
+ * Hjelpemiddel for å generere brikker basert på tegn fra FEN-streng.
+ */
+
+// Importsetninger
 const Pawn = require('../classes/Pawn')
 const Rook = require('../classes/Rook')
 const Knight = require('../classes/Knight')

@@ -1,3 +1,12 @@
+/**
+ * Hovedklasse for sjakkmotoren.
+ * Eksponerer den funksjonaliteten som er nødvendig for
+ * å kunne bruke sjakkmotoren som et bibliotek utenfra.
+ * Metodene i denne klassen kaller metoder i underliggende
+ * klasser mer eller mindre direkte, og returnerer data.
+ */
+
+// Importsetninger
 const Game = require('./classes/Game')
 
 class ChessGame {
